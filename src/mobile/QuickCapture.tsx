@@ -34,6 +34,7 @@ const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
   const [showNewDeck, setShowNewDeck] = useState(false);
   const [newDeckName, setNewDeckName] = useState("");
 
+  
   useEffect(() => {
     getDecks().then((data) => setDecks(data ?? []));
   }, []);
