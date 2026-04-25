@@ -11,7 +11,7 @@ export type WordType =
   | "expression"
   | "other";
 
-export type Language = "french" | "german" | "italian"
+export type Language = "french" | "german" | "italian" | "english"
 
 export interface TranslationConfig {
   sourceLanguage : Language;

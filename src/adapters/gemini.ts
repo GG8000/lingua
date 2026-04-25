@@ -15,6 +15,12 @@ function getLanguagePrompt(foreignLanguage : Language): string {
         "article": only if wordType is "noun" - object with keys: indefinite (e.g. "un"/"uno"/"una"), definite (e.g. "il"/"lo"/"la"), plural (e.g. "i"/"gli"/"le"). Indefinite and definite has to be the same genus. Otherwise omit.
         grammar should be in German, technical terms in Italian (e.g. congiuntivo, imperfetto, passato prossimo).`
         }
+    if (foreignLanguage === "english") {
+        return `
+        "conjugation": only if wordType is "verb" or "participle" - conjugate the ${foreignLanguage} word in ${foreignLanguage}. Object with keys: i, you, she, we, you, they. IMPORTANT: The value must NOT include the pronoun - only the verb form itself. Otherwise omit.
+        "article": only if wordType is "noun" - object with keys: indefinite ("a" or "an" based on no vocal or vocal as first letter), definite ("the"), plural (""). Otherwise omit.
+        grammar should be in German, technical terms in English (e.g. subjunctive, imperfect, simple past).`
+    }
 
   return `grammar should be in German.`
 }

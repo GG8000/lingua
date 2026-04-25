@@ -12,6 +12,7 @@ const LANG_LABELS: Record<Language, string> = {
   french: "Français",
   italian: "Italiano",
   german: "Deutsch",
+  english: "English",
 };
 
 interface Props {
@@ -45,21 +46,24 @@ const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
   const dragOffset = useRef(0);
 
   const targetOptions: Record<Language, Language[]> = {
-    german: ["french", "italian"],
+    german: ["french", "italian", "english"],
     french: ["german"],
     italian: ["german"],
+    english: ["german"]
   };
 
   const phrasePlaceholders: Record<Language, string> = {
-    french: "z.B. vélo",
-    italian: "z.B. sprezzatura",
-    german: "z.B. Fahrrad",
+    french: "par example: vélo",
+    italian: "per esempio: sprezzatura",
+    german: "zum Beispiel: Fahrrad",
+    english: "for example: bicycle"
   };
 
   const contextPlaceholders: Record<Language, string> = {
-    french: "z.B. Je vais au travail à vélo.",
-    italian: "z.B. Vado al lavoro in bicicletta.",
-    german: "z.B. Ich fahre mit dem Fahrrad zur Arbeit.",
+    french: "par example: Je vais au travail à vélo.",
+    italian: "per esempio: Vado al lavoro in bicicletta.",
+    german: "zum Beispiel: Ich fahre mit dem Fahrrad zur Arbeit.",
+    english: "for example: I love to ride my bicycle."
   };
 
   const handleCapture = async () => {
