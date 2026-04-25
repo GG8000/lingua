@@ -49,7 +49,6 @@ const StudySession = ({ onClose }: Props) => {
   const [totalUnique, setTotalUnique] = useState(0);
   const [reviewed, setReviewed] = useState(0);
 
-  const [reversed, setReversed] = useState(false)
 
   useEffect(() => {
     getDecks().then((data) => {
