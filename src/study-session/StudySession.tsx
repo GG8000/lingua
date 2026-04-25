@@ -364,7 +364,7 @@ const StudySession = ({ onClose }: Props) => {
         </div>
 
         <div className="study-front">
-          {card.article &&
+          {card.article && ( !card.reversed &&
             (() => {
               const article =
                 typeof card.article === "string"
@@ -375,7 +375,7 @@ const StudySession = ({ onClose }: Props) => {
                   {article?.indefinite ?? ""}
                 </span>
               );
-            })()}
+            })())}
           <h2 className="study-phrase">{card.reversed ? card.translation : card.phrase}</h2>
           {card.example && (
             <div className="study-example-box">
@@ -389,6 +389,18 @@ const StudySession = ({ onClose }: Props) => {
           <>
             <hr className="study-divider" />
             <div className="study-back">
+              {card.article && ( card.reversed &&
+            (() => {
+              const article =
+                typeof card.article === "string"
+                  ? JSON.parse(card.article)
+                  : card.article;
+              return (
+                <span className="study-article">
+                  {article?.indefinite ?? ""}
+                </span>
+              );
+            }))()}
               <p className="study-translation">{card.reversed ? card.phrase : card.translation}</p>
               {card.example_translation && (
                 <p className="study-example-translation">
