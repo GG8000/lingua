@@ -134,14 +134,13 @@
 
 /* ─── Progress ─── */
 
+
 .study-progress-bar {
-  width: 100%;
-  max-width: 480px;
+  flex: 1;
   height: 4px;
   background: #E8D5C0;
   border-radius: 2px;
   overflow: hidden;
-  margin-top: 4px;
 }
 
 .study-progress-fill {
@@ -151,15 +150,24 @@
   transition: width 0.4s ease;
 }
 
+
 .study-counter {
   font-size: 12px;
   color: #C4A882;
   letter-spacing: 0.06em;
   margin: 0;
-  align-self: flex-end;
-  max-width: 480px;
-  width: 100%;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+
+.study-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+}
+
 
 /* ─── Card ─── */
 

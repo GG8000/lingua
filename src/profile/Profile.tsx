@@ -7,6 +7,7 @@ const LANG_LABELS: Record<Language, string> = {
   french: "Français",
   italian: "Italiano",
   german: "Deutsch",
+  english: "English"
 };
 
 interface Props {
@@ -49,6 +50,8 @@ const Profile = ({ open, onClose }: Props) => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  if (!open) return null
 
   if (status === "loading") {
     return (

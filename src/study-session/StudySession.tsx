@@ -69,7 +69,11 @@ const StudySession = ({ onClose }: Props) => {
 
   // ── Queue-Helfer ─────────────────────────────────────────────────────────
 
-  const insertIntoQueue = (remaining: SessionCard[], card: SessionCard, gap = REQUEUE_GAP) => {
+  const insertIntoQueue = (
+    remaining: SessionCard[],
+    card: SessionCard,
+    gap = REQUEUE_GAP,
+  ) => {
     const insertAt = Math.min(gap, remaining.length);
     const next = [...remaining];
     next.splice(insertAt, 0, card);
@@ -90,42 +94,80 @@ const StudySession = ({ onClose }: Props) => {
 
     if (card._state === "new" || card._state === "learning") {
       if (rating === 1) {
-        setQueue(insertIntoQueue(remaining, { ...card, _state: "learning", _stepIndex: 0 }));
+        setQueue(
+          insertIntoQueue(remaining, {
+            ...card,
+            _state: "learning",
+            _stepIndex: 0,
+          }),
+        );
         setShowAnswer(false);
         return;
       }
       if (rating === 4) {
-        await reviewCard(card.id, rating, EASY_INT, card.ease_factor ?? 2.5, card.repetitions ?? 0);
+        await reviewCard(
+          card.id,
+          rating,
+          EASY_INT,
+          card.ease_factor ?? 2.5,
+          card.repetitions ?? 0,
+        );
         setReviewed((r) => r + 1);
         advance(remaining);
         return;
       }
       if (rating === 2) {
-        setQueue(insertIntoQueue(remaining, { ...card, _state: "learning" }, REQUEUE_GAP + 1));
+        setQueue(
+          insertIntoQueue(
+            remaining,
+            { ...card, _state: "learning" },
+            REQUEUE_GAP + 1,
+          ),
+        );
         setShowAnswer(false);
         return;
       }
       const nextStep = card._stepIndex + 1;
       if (nextStep >= STEPS.length) {
-        await reviewCard(card.id, rating, GRAD_INT, card.ease_factor ?? 2.5, card.repetitions ?? 0);
+        await reviewCard(
+          card.id,
+          rating,
+          GRAD_INT,
+          card.ease_factor ?? 2.5,
+          card.repetitions ?? 0,
+        );
         setReviewed((r) => r + 1);
         advance(remaining);
       } else {
-        setQueue(insertIntoQueue(remaining, { ...card, _state: "learning", _stepIndex: nextStep }, REQUEUE_GAP + 2));
+        setQueue(
+          insertIntoQueue(
+            remaining,
+            { ...card, _state: "learning", _stepIndex: nextStep },
+            REQUEUE_GAP + 2,
+          ),
+        );
         setShowAnswer(false);
       }
       return;
     }
 
     if (card._state === "review") {
-      await reviewCard(card.id, rating, card.interval ?? 1, card.ease_factor ?? 2.5, card.repetitions ?? 0);
+      await reviewCard(
+        card.id,
+        rating,
+        card.interval ?? 1,
+        card.ease_factor ?? 2.5,
+        card.repetitions ?? 0,
+      );
       if (rating === 1) {
-        setQueue(insertIntoQueue(remaining, {
-          ...card,
-          _state: "relearning",
-          _stepIndex: 0,
-          ease_factor: Math.max(MIN_EASE, (card.ease_factor ?? 2.5) - 0.2),
-        }));
+        setQueue(
+          insertIntoQueue(remaining, {
+            ...card,
+            _state: "relearning",
+            _stepIndex: 0,
+            ease_factor: Math.max(MIN_EASE, (card.ease_factor ?? 2.5) - 0.2),
+          }),
+        );
         setShowAnswer(false);
         return;
       }
@@ -141,7 +183,13 @@ const StudySession = ({ onClose }: Props) => {
         return;
       }
       const newInterval = Math.max(1, Math.round((card.interval ?? 1) * 0.5));
-      await reviewCard(card.id, rating, newInterval, card.ease_factor ?? 2.5, card.repetitions ?? 0);
+      await reviewCard(
+        card.id,
+        rating,
+        newInterval,
+        card.ease_factor ?? 2.5,
+        card.repetitions ?? 0,
+      );
       advance(remaining);
       return;
     }
@@ -149,19 +197,32 @@ const StudySession = ({ onClose }: Props) => {
 
   // ── UI-Helfer ─────────────────────────────────────────────────────────────
 
-  const getStateBadge = (state: CardState) => ({
-    new:        { label: "Neu",           className: "state-badge state-new" },
-    learning:   { label: "Lernend",       className: "state-badge state-learning" },
-    review:     { label: "Wiederholen",   className: "state-badge state-review" },
-    relearning: { label: "Wieder-lernen", className: "state-badge state-relearning" },
-  }[state]);
+  const getStateBadge = (state: CardState) =>
+    ({
+      new: { label: "Neu", className: "state-badge state-new" },
+      learning: { label: "Lernend", className: "state-badge state-learning" },
+      review: { label: "Wiederholen", className: "state-badge state-review" },
+      relearning: {
+        label: "Wieder-lernen",
+        className: "state-badge state-relearning",
+      },
+    })[state];
 
-  const getRatingSublabel = (rating: 1 | 2 | 3 | 4, card: SessionCard): string => {
-    const isLearning = card._state === "new" || card._state === "learning" || card._state === "relearning";
+  const getRatingSublabel = (
+    rating: 1 | 2 | 3 | 4,
+    card: SessionCard,
+  ): string => {
+    const isLearning =
+      card._state === "new" ||
+      card._state === "learning" ||
+      card._state === "relearning";
     if (isLearning) {
       if (rating === 1) return "von vorne";
       if (rating === 2) return "gleicher Schritt";
-      if (rating === 3) return card._stepIndex >= STEPS.length - 1 ? "abgeschlossen" : "nächster Schritt";
+      if (rating === 3)
+        return card._stepIndex >= STEPS.length - 1
+          ? "abgeschlossen"
+          : "nächster Schritt";
       if (rating === 4) return `in ${EASY_INT} Tagen`;
     } else {
       const ease = card.ease_factor ?? 2.5;
@@ -180,10 +241,14 @@ const StudySession = ({ onClose }: Props) => {
   if (status === "selecting") {
     return (
       <div className="study-wrapper">
-        <button className="study-back-btn" onClick={onClose}>← Zurück</button>
+        <button className="study-back-btn" onClick={onClose}>
+          ← Zurück
+        </button>
         <div className="deck-header">
           <h1 className="deck-title">Lernset wählen</h1>
-          <p className="deck-subtitle">Wähle ein Deck, das du heute lernen möchtest.</p>
+          <p className="deck-subtitle">
+            Wähle ein Deck, das du heute lernen möchtest.
+          </p>
         </div>
 
         {decksLoading ? (
@@ -205,11 +270,15 @@ const StudySession = ({ onClose }: Props) => {
               >
                 <div className="deck-item-left">
                   <span className="deck-item-name">{deck.name}</span>
-                  <span className="deck-item-total">{deck.total_count} Karten gesamt</span>
+                  <span className="deck-item-total">
+                    {deck.total_count} Karten gesamt
+                  </span>
                 </div>
                 <div className="deck-item-right">
                   {deck.due_count > 0 ? (
-                    <span className="deck-due-badge">{deck.due_count} fällig</span>
+                    <span className="deck-due-badge">
+                      {deck.due_count} fällig
+                    </span>
                   ) : (
                     <span className="deck-done-badge">erledigt ✓</span>
                   )}
@@ -243,10 +312,17 @@ const StudySession = ({ onClose }: Props) => {
           <p className="study-done-subtitle">
             Alle fälligen Karten in <em>{selectedDeck?.name}</em> erledigt.
           </p>
-          <button className="study-show-btn" onClick={() => setStatus("selecting")}>
+          <button
+            className="study-show-btn"
+            onClick={() => setStatus("selecting")}
+          >
             Anderes Deck lernen
           </button>
-          <button className="study-back-btn" style={{ marginTop: 8, alignSelf: "center" }} onClick={onClose}>
+          <button
+            className="study-back-btn"
+            style={{ marginTop: 8, alignSelf: "center" }}
+            onClick={onClose}
+          >
             Beenden
           </button>
         </div>
@@ -262,16 +338,24 @@ const StudySession = ({ onClose }: Props) => {
   return (
     <div className="study-wrapper">
       <div className="study-session-topbar">
-        <button className="study-back-btn" onClick={() => setStatus("selecting")}>
+        <button
+          className="study-back-btn"
+          onClick={() => setStatus("selecting")}
+        >
           ← {selectedDeck?.name}
         </button>
-        <p className="study-counter">{reviewed} / {totalUnique}</p>
       </div>
-
-      <div className="study-progress-bar">
-        <div className="study-progress-fill" style={{ width: `${progress}%` }} />
+      <div className="study-progress-row">
+        <div className="study-progress-bar">
+          <div
+            className="study-progress-fill"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="study-counter">
+          {reviewed} / {totalUnique}
+        </p>
       </div>
-
       {/* Card */}
       <div className="study-card">
         <div className="study-card-header">
@@ -279,10 +363,18 @@ const StudySession = ({ onClose }: Props) => {
         </div>
 
         <div className="study-front">
-          {card.article && (() => {
-            const article = typeof card.article === "string" ? JSON.parse(card.article) : card.article;
-            return <span className="study-article">{article?.indefinite ?? ""}</span>;
-          })()}
+          {card.article &&
+            (() => {
+              const article =
+                typeof card.article === "string"
+                  ? JSON.parse(card.article)
+                  : card.article;
+              return (
+                <span className="study-article">
+                  {article?.indefinite ?? ""}
+                </span>
+              );
+            })()}
           <h2 className="study-phrase">{card.phrase}</h2>
           {card.example && (
             <div className="study-example-box">
@@ -298,25 +390,35 @@ const StudySession = ({ onClose }: Props) => {
             <div className="study-back">
               <p className="study-translation">{card.translation}</p>
               {card.example_translation && (
-                <p className="study-example-translation">{card.example_translation}</p>
+                <p className="study-example-translation">
+                  {card.example_translation}
+                </p>
               )}
               {card.grammar && <p className="study-grammar">{card.grammar}</p>}
-              {card.conjugation && (() => {
-                const conj = typeof card.conjugation === "string" ? JSON.parse(card.conjugation) : card.conjugation;
-                return (
-                  <details className="qc-details" style={{ marginTop: 16 }}>
-                    <summary className="qc-details-summary">Konjugation</summary>
-                    <div className="qc-details-grid">
-                      {Object.entries(conj).map(([pronoun, form]) => (
-                        <div key={pronoun} className="qc-details-row">
-                          <span className="qc-details-label">{pronoun}</span>
-                          <span className="qc-details-value">{form as string}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                );
-              })()}
+              {card.conjugation &&
+                (() => {
+                  const conj =
+                    typeof card.conjugation === "string"
+                      ? JSON.parse(card.conjugation)
+                      : card.conjugation;
+                  return (
+                    <details className="qc-details" style={{ marginTop: 16 }}>
+                      <summary className="qc-details-summary">
+                        Konjugation
+                      </summary>
+                      <div className="qc-details-grid">
+                        {Object.entries(conj).map(([pronoun, form]) => (
+                          <div key={pronoun} className="qc-details-row">
+                            <span className="qc-details-label">{pronoun}</span>
+                            <span className="qc-details-value">
+                              {form as string}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  );
+                })()}
             </div>
           </>
         )}
@@ -329,12 +431,23 @@ const StudySession = ({ onClose }: Props) => {
       ) : (
         <div className="study-rating-row">
           {([1, 2, 3, 4] as const).map((r) => {
-            const labels: Record<number, string> = { 1: "Vergessen", 2: "Schwer", 3: "Gut", 4: "Einfach" };
+            const labels: Record<number, string> = {
+              1: "Vergessen",
+              2: "Schwer",
+              3: "Gut",
+              4: "Einfach",
+            };
             return (
-              <button key={r} className={`study-rating-btn rating-${r}`} onClick={() => handleRating(r)}>
+              <button
+                key={r}
+                className={`study-rating-btn rating-${r}`}
+                onClick={() => handleRating(r)}
+              >
                 <span className="rating-number">{r}</span>
                 <span className="rating-label">{labels[r]}</span>
-                <span className="rating-sublabel">{getRatingSublabel(r, card)}</span>
+                <span className="rating-sublabel">
+                  {getRatingSublabel(r, card)}
+                </span>
               </button>
             );
           })}

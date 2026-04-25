@@ -25,7 +25,7 @@ export async function saveCard(
     target_language: translation.config.targetLanguage,
     user_id: user?.id,
     deck_id: deckId ?? null,
-    next_review: new Date().toISOString(),
+    due_date: new Date().toISOString(),
     state: "new",
     step_index: 0,
   })
@@ -73,7 +73,7 @@ export async function getDecks() {
           .from("cards")
           .select("*", { count: "exact", head: true })
           .eq("deck_id", deck.id)
-          .lte("next_review", now),
+          .lte("due_date", now),
       ]);
  
       return {
@@ -104,8 +104,8 @@ export async function getDueCards(deckId?: string) {
   let query = supabase
     .from("cards")
     .select("*")
-    .lte("next_review", now)
-    .order("next_review");
+    .lte("due_date", now)
+    .order("due_date");
  
   if (deckId) {
     query = query.eq("deck_id", deckId);
