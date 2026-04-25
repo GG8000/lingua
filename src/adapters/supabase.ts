@@ -8,7 +8,8 @@ export const supabase = createClient(
 
 export async function saveCard(
   translation: Translation,
-  deckId?: string
+  deckId?: string,
+  reversed: boolean = false
 ): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -28,6 +29,7 @@ export async function saveCard(
     due_date: new Date().toISOString(),
     state: "new",
     step_index: 0,
+    reversed: reversed,
   })
 
   if (error) throw new Error(`Failed to save card: ${error.message}`)

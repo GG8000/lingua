@@ -14,7 +14,8 @@ export async function captureWord(
   }
 
   const translation = await translatePhrase(phrase, config, context);
-  await saveCard(translation, deckId)
+  await saveCard(translation, deckId, false)
+  await saveCard(translation, deckId, true)
 
   return translation as Translation;
 }

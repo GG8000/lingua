@@ -49,6 +49,8 @@ const StudySession = ({ onClose }: Props) => {
   const [totalUnique, setTotalUnique] = useState(0);
   const [reviewed, setReviewed] = useState(0);
 
+  const [reversed, setReversed] = useState(false)
+
   useEffect(() => {
     getDecks().then((data) => {
       setDecks(data ?? []);
@@ -375,11 +377,11 @@ const StudySession = ({ onClose }: Props) => {
                 </span>
               );
             })()}
-          <h2 className="study-phrase">{card.phrase}</h2>
+          <h2 className="study-phrase">{card.reversed ? card.translation : card.phrase}</h2>
           {card.example && (
             <div className="study-example-box">
               <p className="study-example-label">Beispiel</p>
-              <p className="study-example">{card.example}</p>
+              <p className="study-example">{card.reversed ? card.example_translation : card.example}</p>
             </div>
           )}
         </div>
@@ -388,10 +390,10 @@ const StudySession = ({ onClose }: Props) => {
           <>
             <hr className="study-divider" />
             <div className="study-back">
-              <p className="study-translation">{card.translation}</p>
+              <p className="study-translation">{card.reversed ? card.phrase : card.translation}</p>
               {card.example_translation && (
                 <p className="study-example-translation">
-                  {card.example_translation}
+                  {card.reversed ? card.example : card.example_translation}
                 </p>
               )}
               {card.grammar && <p className="study-grammar">{card.grammar}</p>}
