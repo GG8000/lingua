@@ -301,7 +301,7 @@ const StudySession = ({ deck, onClose }: Props) => {
         </div>
       )}
 
-      // CONFIRMATION modal
+      {/* CONFIRMATION modal*/}
       {confirmLeaveSession && (
         <ConfirmModal
           message="Der Fortschritt wird nicht gespeichert, wenn du die Session frühzeitig verlässt. Möchtest du wirklich die Session beenden?"
