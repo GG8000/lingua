@@ -8,7 +8,7 @@ const LANG_LABELS: Record<Language, string> = {
   french: "Français",
   italian: "Italiano",
   german: "Deutsch",
-  english: "English"
+  english: "English",
 };
 
 interface Props {
@@ -22,7 +22,7 @@ const Profile = ({ open, onClose }: Props) => {
   const [status, setStatus] = useState<"error" | "loading" | "saving" | "idle">(
     "loading",
   );
-  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -45,15 +45,30 @@ const Profile = ({ open, onClose }: Props) => {
   };
 
   const handleDeleteAccount = async () => {
-    const { error } = await supabase.functions.invoke("delete-user")
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (error) {
-      console.error("Fehler beim Löschen:", error)
-      return
+    if (!session) return;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (response.ok) {
+      await supabase.auth.signOut();
+    } else {
+      console.error("Fehler:", await response.text());
     }
-
-    await supabase.auth.signOut()
-  }
+  };
 
   const handleLanguageChange = async (lang: Language) => {
     setNativeLanguage(lang);
@@ -64,7 +79,7 @@ const Profile = ({ open, onClose }: Props) => {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  if (!open) return null
+  if (!open) return null;
 
   if (status === "loading") {
     return (
@@ -103,7 +118,11 @@ const Profile = ({ open, onClose }: Props) => {
         <button className="profile-logout" onClick={handleLogout}>
           Abmelden
         </button>
-        <button className="deck-delete-all-btn" onClick={() => setConfirmDeleteAccount(true)}>
+
+        <button
+          className="profile-logout"
+          onClick={() => setConfirmDeleteAccount(true)}
+        >
           Account löschen
         </button>
 

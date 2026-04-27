@@ -70,14 +70,21 @@ export async function getProfile() {
   return data;
 }
 
-export async function existsEmail( email : string) {
-  const {data} = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("email", email.trim())
-    .limit(1)
-  
-  return (data?.length ?? 0) > 0
+export async function existsEmail(email: string): Promise<boolean> {
+  const response = await fetch(
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-email`,
+    {
+      method: "POST",
+      headers: {
+        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    }
+  )
+
+  const { exists } = await response.json()
+  return exists
 }
 
 export async function getDecks() {

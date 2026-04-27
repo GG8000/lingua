@@ -24,22 +24,26 @@ const Login = () => {
         return;
       }
 
-      const email_duplicate = await existsEmail(email);
+      const { data, error } = await supabase.auth.signUp({ email, password })
 
-      if (email_duplicate) {
-        setErrorMsg(
-          "Email existiert bereits, melde dich an oder setze dein Passwort zurück.",
-        );
-        setStatus("error");
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      console.log(data, error)
 
       if (error) {
-        setErrorMsg(error.message);
-        setStatus("error");
-        return;
+        if (error.message.includes("already registered")) {
+          setErrorMsg("Diese E-Mail ist bereits registriert. Bitte einloggen.")
+        } else {
+          setErrorMsg(error.message)
+        }
+        setStatus("error")
+        return
+      }
+
+      const emailExists = await existsEmail(email)
+
+      if (emailExists) {
+        setErrorMsg("Diese E-Mail ist bereits registriert. Bitte einloggen.")
+        setStatus("error")
+        return
       }
 
       if (data.user) {
