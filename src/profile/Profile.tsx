@@ -103,8 +103,6 @@ const Profile = ({ open, onClose }: Props) => {
         <button className="profile-logout" onClick={handleLogout}>
           Abmelden
         </button>
-        const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
-
         <button className="deck-delete-all-btn" onClick={() => setConfirmDeleteAccount(true)}>
           Account löschen
         </button>
