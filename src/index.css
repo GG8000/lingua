@@ -61,6 +61,29 @@ p { margin: 0; }
   text-underline-offset: 3px;
 }
 
+.input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-wrapper .qc-input {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.input-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  color: #C4A882;
+}
+
 .app {
   height: 100%;
   display: flex;

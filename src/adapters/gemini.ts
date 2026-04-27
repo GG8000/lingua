@@ -17,7 +17,7 @@ function getLanguagePrompt(foreignLanguage : Language): string {
         }
     if (foreignLanguage === "english") {
         return `
-        "conjugation": only if wordType is "verb" or "participle" - conjugate the ${foreignLanguage} word in ${foreignLanguage}. Object with keys: i, you, she, we, you, they. IMPORTANT: The value must NOT include the pronoun - only the verb form itself. Otherwise omit.
+        "conjugation": omit.
         "article": only if wordType is "noun" - object with keys: indefinite ("a" or "an" based on no vocal or vocal as first letter), definite ("the"), plural (""). Otherwise omit.
         grammar should be in German, technical terms in English (e.g. subjunctive, imperfect, simple past).`
     }

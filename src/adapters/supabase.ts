@@ -70,6 +70,16 @@ export async function getProfile() {
   return data;
 }
 
+export async function existsEmail( email : string) {
+  const {data} = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("email", email.trim())
+    .limit(1)
+  
+  return (data?.length ?? 0) > 0
+}
+
 export async function getDecks() {
   const { data: decks, error } = await supabase
     .from("decks")
