@@ -400,7 +400,7 @@ const StudySession = ({ onClose }: Props) => {
                   {article?.indefinite ?? ""}
                 </span>
               );
-            }))()}
+            })())}
               <p className="study-translation">{card.reversed ? card.phrase : card.translation}</p>
               {card.example_translation && (
                 <p className="study-example-translation">
