@@ -420,3 +420,22 @@
   padding: 0;
   align-self: flex-start;
 }
+
+.study-stats-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.study-stat {
+  font-size: 12px;
+  font-family: 'Lora', serif;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+.study-stat.state-new      { background: #E6F1FB; color: #185FA5; }
+.study-stat.state-learning { background: #F5EDD8; color: #9A7030; }
+.study-stat.state-review   { background: #DFF0E4; color: #3A6E4C; }

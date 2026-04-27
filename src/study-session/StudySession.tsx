@@ -49,6 +49,9 @@ const StudySession = ({ onClose }: Props) => {
   const [totalUnique, setTotalUnique] = useState(0);
   const [reviewed, setReviewed] = useState(0);
 
+  const newCount      = queue.filter(c => c._state === "new").length
+  const learningCount = queue.filter(c => c._state === "learning" || c._state === "relearning").length
+  const reviewCount   = queue.filter(c => c._state === "review").length
 
   useEffect(() => {
     getDecks().then((data) => {
@@ -67,6 +70,16 @@ const StudySession = ({ onClose }: Props) => {
     setReviewed(0);
     setStatus(initialized.length === 0 ? "done" : "idle");
   };
+
+  const handleBack = () => {
+  if (queue.length > 0 && status === "idle") {
+    if (confirm("Session abbrechen? Dein Fortschritt geht verloren.")) {
+      setStatus("selecting")
+    }
+  } else {
+    setStatus("selecting")
+  }
+}
 
   // ── Queue-Helfer ─────────────────────────────────────────────────────────
 
@@ -341,21 +354,24 @@ const StudySession = ({ onClose }: Props) => {
       <div className="study-session-topbar">
         <button
           className="study-back-btn"
-          onClick={() => setStatus("selecting")}
+          onClick={handleBack}
         >
           ← {selectedDeck?.name}
         </button>
       </div>
       <div className="study-progress-row">
+        <div className="study-progress-row">
         <div className="study-progress-bar">
-          <div
-            className="study-progress-fill"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="study-progress-fill" style={{ width: `${progress}%` }} />
         </div>
-        <p className="study-counter">
-          {reviewed} / {totalUnique}
-        </p>
+        <p className="study-counter">{reviewed} / {totalUnique}</p>
+      </div>
+
+      <div className="study-stats-row">
+        <span className="study-stat state-new">🔵 {newCount} neu</span>
+        <span className="study-stat state-learning">🟡 {learningCount} lernend</span>
+        <span className="study-stat state-review">🟢 {reviewCount} wiederholen</span>
+      </div>
       </div>
       {/* Card */}
       <div className="study-card">
