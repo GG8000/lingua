@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase, getProfile, updateProfile } from "../adapters/supabase";
 import type { Language } from "../domain/models";
 import "./Profile.css";
+import ConfirmModal from "../components/confirmModal";
 
 const LANG_LABELS: Record<Language, string> = {
   french: "Français",
@@ -21,6 +22,7 @@ const Profile = ({ open, onClose }: Props) => {
   const [status, setStatus] = useState<"error" | "loading" | "saving" | "idle">(
     "loading",
   );
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -41,6 +43,17 @@ const Profile = ({ open, onClose }: Props) => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
+
+  const handleDeleteAccount = async () => {
+    const { error } = await supabase.functions.invoke("delete-user")
+
+    if (error) {
+      console.error("Fehler beim Löschen:", error)
+      return
+    }
+
+    await supabase.auth.signOut()
+  }
 
   const handleLanguageChange = async (lang: Language) => {
     setNativeLanguage(lang);
@@ -90,6 +103,20 @@ const Profile = ({ open, onClose }: Props) => {
         <button className="profile-logout" onClick={handleLogout}>
           Abmelden
         </button>
+        const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
+
+        <button className="deck-delete-all-btn" onClick={() => setConfirmDeleteAccount(true)}>
+          Account löschen
+        </button>
+
+        {confirmDeleteAccount && (
+          <ConfirmModal
+            message="Account und alle Daten unwiderruflich löschen?"
+            onConfirm={handleDeleteAccount}
+            onCancel={() => setConfirmDeleteAccount(false)}
+            confirmBtnText="Löschen"
+          />
+        )}
       </div>
     </>
   );
