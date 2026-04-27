@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Language, Translation } from "../domain/models";
+import {shuffle} from "../utils/helper";
 
 export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -131,6 +132,8 @@ export async function getDueCards(deckId?: string) {
 
   const { data, error } = await query;
   if (error) return [];
+
+  shuffle(data)
   return data;
 }
 
@@ -156,4 +159,51 @@ export async function assignCardToDeck(cardId: string, deckId: string | null) {
     .eq("id", cardId);
 
   if (error) throw error;
+}
+
+
+export async function getCardsByDeck(deckId : string) {
+  const {data,error} = await supabase
+    .from("cards")
+    .select("*")
+    .eq("deck_id", deckId)
+    .eq("reversed", false)
+    .order("created_at", {ascending: false})
+
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export async function updateCard(cardId : string, updates: Partial<{
+  phrase : string,
+  translation : string,
+  example : string,
+  example_translation : string,
+  grammar : string
+}>) {
+  const {error} = await supabase
+    .from("cards")
+    .update(updates)
+    .eq("id", cardId)
+
+  if(error) throw new Error(error.message)
+}
+
+export async function deleteCardPair(phrase : string, deckId : string) {
+  const {error} = await supabase
+    .from("cards")
+    .delete()
+    .eq("phrase", phrase)
+    .eq("deck_id", deckId)
+
+  if(error) throw new Error(error.message)
+}
+
+export async function deleteAllCards(deckId : string) {
+  const {error} = await supabase
+    .from("cards")
+    .delete()
+    .eq("deck_id", deckId)
+
+  if (error) throw new Error(error.message)
 }

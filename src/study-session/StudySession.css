@@ -132,6 +132,39 @@
   letter-spacing: 0.03em;
 }
 
+.deck-item-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.deck-item-wrapper .deck-item {
+  flex: 1;
+}
+
+.deck-menu-btn {
+  background: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  color: #C4A882;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow:
+    0 2px 8px rgba(139, 94, 60, 0.06),
+    0 4px 16px rgba(139, 94, 60, 0.06);
+  transition: background 0.15s;
+}
+
+.deck-menu-btn:hover {
+  background: #F5EDE0;
+  color: #8B5E3C;
+}
+
 /* ─── Progress ─── */
 
 
@@ -439,3 +472,63 @@
 .study-stat.state-new      { background: #E6F1FB; color: #185FA5; }
 .study-stat.state-learning { background: #F5EDD8; color: #9A7030; }
 .study-stat.state-review   { background: #DFF0E4; color: #3A6E4C; }
+
+
+.card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.card-item-content {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow:
+    0 2px 8px rgba(139, 94, 60, 0.06),
+    0 4px 16px rgba(139, 94, 60, 0.06);
+  transition: transform 0.15s;
+}
+
+.card-item-content:hover {
+  transform: translateY(-2px);
+}
+
+.card-item-phrase {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: #2C1810;
+}
+
+.card-item-translation {
+  font-size: 13px;
+  color: #A08060;
+  font-style: italic;
+}
+
+.deck-delete-all-btn {
+  width: 100%;
+  max-width: 480px;
+  padding: 13px;
+  background: transparent;
+  color: #B05C4A;
+  border: 1.5px solid #E8D5C0;
+  border-radius: 10px;
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.deck-delete-all-btn:hover {
+  background: #FFF5F3;
+  border-color: #B05C4A;
+}

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { reviewCard } from "../use-cases/reviewCard";
-import { getDueCards, getDecks } from "../adapters/supabase";
+import { getDueCards } from "../adapters/supabase";
+import type { Deck } from "./DeckSelector";
 import "./StudySession.css";
+import ConfirmModal from "../components/confirmModal";
 
-// ── SM-2 Konfiguration ──────────────────────────────────────────────────────
+// ── SM-2 Konfiguration ────────────────────────────────────────────────────
 const STEPS = [1, 10];
 const EASY_INT = 4;
 const GRAD_INT = 1;
@@ -11,14 +13,7 @@ const MIN_EASE = 1.3;
 const REQUEUE_GAP = 3;
 
 type CardState = "new" | "learning" | "review" | "relearning";
-type Status = "selecting" | "loading" | "idle" | "done";
-
-interface Deck {
-  id: string;
-  name: string;
-  due_count: number;
-  total_count: number;
-}
+type Status = "loading" | "idle" | "done";
 
 interface SessionCard {
   [key: string]: any;
@@ -35,59 +30,44 @@ function initCard(card: any): SessionCard {
 }
 
 interface Props {
+  deck: Deck;
   onClose: () => void;
 }
 
-const StudySession = ({ onClose }: Props) => {
-  const [status, setStatus] = useState<Status>("selecting");
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
-  const [decksLoading, setDecksLoading] = useState(true);
-
+const StudySession = ({ deck, onClose }: Props) => {
+  const [status, setStatus] = useState<Status>("loading");
   const [queue, setQueue] = useState<SessionCard[]>([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const [totalUnique, setTotalUnique] = useState(0);
   const [reviewed, setReviewed] = useState(0);
+  const [confirmLeaveSession, setConfirmLeaveSession] = useState(false)
 
-  const newCount      = queue.filter(c => c._state === "new").length
-  const learningCount = queue.filter(c => c._state === "learning" || c._state === "relearning").length
-  const reviewCount   = queue.filter(c => c._state === "review").length
+  const newCount = queue.filter((c) => c._state === "new").length;
+  const learningCount = queue.filter(
+    (c) => c._state === "learning" || c._state === "relearning",
+  ).length;
+  const reviewCount = queue.filter((c) => c._state === "review").length;
 
   useEffect(() => {
-    getDecks().then((data) => {
-      setDecks(data ?? []);
-      setDecksLoading(false);
+    getDueCards(deck.id).then((cards) => {
+      const initialized = (cards ?? []).map(initCard);
+      setQueue(initialized);
+      setTotalUnique(initialized.length);
+      setStatus(initialized.length === 0 ? "done" : "idle");
     });
-  }, []);
-
-  const startDeck = async (deck: Deck) => {
-    setSelectedDeck(deck);
-    setStatus("loading");
-    const cards = await getDueCards(deck.id);
-    const initialized = (cards ?? []).map(initCard);
-    setQueue(initialized);
-    setTotalUnique(initialized.length);
-    setReviewed(0);
-    setStatus(initialized.length === 0 ? "done" : "idle");
-  };
+  }, [deck.id]);
 
   const handleBack = () => {
-  if (queue.length > 0 && status === "idle") {
-    if (confirm("Session abbrechen? Dein Fortschritt geht verloren.")) {
-      setStatus("selecting")
+    if (queue.length > 0 && status === "idle") {
+      setConfirmLeaveSession(true)
+    } else {
+      onClose();
     }
-  } else {
-    setStatus("selecting")
-  }
-}
+  };
 
-  // ── Queue-Helfer ─────────────────────────────────────────────────────────
+  // ── Queue-Helfer ──────────────────────────────────────────────────────
 
-  const insertIntoQueue = (
-    remaining: SessionCard[],
-    card: SessionCard,
-    gap = REQUEUE_GAP,
-  ) => {
+  const insertIntoQueue = (remaining: SessionCard[], card: SessionCard, gap = REQUEUE_GAP) => {
     const insertAt = Math.min(gap, remaining.length);
     const next = [...remaining];
     next.splice(insertAt, 0, card);
@@ -100,7 +80,7 @@ const StudySession = ({ onClose }: Props) => {
     setShowAnswer(false);
   };
 
-  // ── Rating-Logik ─────────────────────────────────────────────────────────
+  // ── Rating-Logik ──────────────────────────────────────────────────────
 
   const handleRating = async (rating: 1 | 2 | 3 | 4) => {
     const card = queue[0];
@@ -108,80 +88,42 @@ const StudySession = ({ onClose }: Props) => {
 
     if (card._state === "new" || card._state === "learning") {
       if (rating === 1) {
-        setQueue(
-          insertIntoQueue(remaining, {
-            ...card,
-            _state: "learning",
-            _stepIndex: 0,
-          }),
-        );
+        setQueue(insertIntoQueue(remaining, { ...card, _state: "learning", _stepIndex: 0 }));
         setShowAnswer(false);
         return;
       }
       if (rating === 4) {
-        await reviewCard(
-          card.id,
-          rating,
-          EASY_INT,
-          card.ease_factor ?? 2.5,
-          card.repetitions ?? 0,
-        );
+        await reviewCard(card.id, rating, EASY_INT, card.ease_factor ?? 2.5, card.repetitions ?? 0);
         setReviewed((r) => r + 1);
         advance(remaining);
         return;
       }
       if (rating === 2) {
-        setQueue(
-          insertIntoQueue(
-            remaining,
-            { ...card, _state: "learning" },
-            REQUEUE_GAP + 1,
-          ),
-        );
+        setQueue(insertIntoQueue(remaining, { ...card, _state: "learning" }, REQUEUE_GAP + 1));
         setShowAnswer(false);
         return;
       }
       const nextStep = card._stepIndex + 1;
       if (nextStep >= STEPS.length) {
-        await reviewCard(
-          card.id,
-          rating,
-          GRAD_INT,
-          card.ease_factor ?? 2.5,
-          card.repetitions ?? 0,
-        );
+        await reviewCard(card.id, rating, GRAD_INT, card.ease_factor ?? 2.5, card.repetitions ?? 0);
         setReviewed((r) => r + 1);
         advance(remaining);
       } else {
-        setQueue(
-          insertIntoQueue(
-            remaining,
-            { ...card, _state: "learning", _stepIndex: nextStep },
-            REQUEUE_GAP + 2,
-          ),
-        );
+        setQueue(insertIntoQueue(remaining, { ...card, _state: "learning", _stepIndex: nextStep }, REQUEUE_GAP + 2));
         setShowAnswer(false);
       }
       return;
     }
 
     if (card._state === "review") {
-      await reviewCard(
-        card.id,
-        rating,
-        card.interval ?? 1,
-        card.ease_factor ?? 2.5,
-        card.repetitions ?? 0,
-      );
+      await reviewCard(card.id, rating, card.interval ?? 1, card.ease_factor ?? 2.5, card.repetitions ?? 0);
       if (rating === 1) {
-        setQueue(
-          insertIntoQueue(remaining, {
-            ...card,
-            _state: "relearning",
-            _stepIndex: 0,
-            ease_factor: Math.max(MIN_EASE, (card.ease_factor ?? 2.5) - 0.2),
-          }),
-        );
+        setQueue(insertIntoQueue(remaining, {
+          ...card,
+          _state: "relearning",
+          _stepIndex: 0,
+          ease_factor: Math.max(MIN_EASE, (card.ease_factor ?? 2.5) - 0.2),
+        }));
         setShowAnswer(false);
         return;
       }
@@ -197,46 +139,28 @@ const StudySession = ({ onClose }: Props) => {
         return;
       }
       const newInterval = Math.max(1, Math.round((card.interval ?? 1) * 0.5));
-      await reviewCard(
-        card.id,
-        rating,
-        newInterval,
-        card.ease_factor ?? 2.5,
-        card.repetitions ?? 0,
-      );
+      await reviewCard(card.id, rating, newInterval, card.ease_factor ?? 2.5, card.repetitions ?? 0);
       advance(remaining);
       return;
     }
   };
 
-  // ── UI-Helfer ─────────────────────────────────────────────────────────────
+  // ── UI-Helfer ─────────────────────────────────────────────────────────
 
   const getStateBadge = (state: CardState) =>
     ({
-      new: { label: "Neu", className: "state-badge state-new" },
-      learning: { label: "Lernend", className: "state-badge state-learning" },
-      review: { label: "Wiederholen", className: "state-badge state-review" },
-      relearning: {
-        label: "Wieder-lernen",
-        className: "state-badge state-relearning",
-      },
+      new:        { label: "Neu",           className: "state-badge state-new" },
+      learning:   { label: "Lernend",       className: "state-badge state-learning" },
+      review:     { label: "Wiederholen",   className: "state-badge state-review" },
+      relearning: { label: "Wieder-lernen", className: "state-badge state-relearning" },
     })[state];
 
-  const getRatingSublabel = (
-    rating: 1 | 2 | 3 | 4,
-    card: SessionCard,
-  ): string => {
-    const isLearning =
-      card._state === "new" ||
-      card._state === "learning" ||
-      card._state === "relearning";
+  const getRatingSublabel = (rating: 1 | 2 | 3 | 4, card: SessionCard): string => {
+    const isLearning = card._state === "new" || card._state === "learning" || card._state === "relearning";
     if (isLearning) {
       if (rating === 1) return "von vorne";
       if (rating === 2) return "gleicher Schritt";
-      if (rating === 3)
-        return card._stepIndex >= STEPS.length - 1
-          ? "abgeschlossen"
-          : "nächster Schritt";
+      if (rating === 3) return card._stepIndex >= STEPS.length - 1 ? "abgeschlossen" : "nächster Schritt";
       if (rating === 4) return `in ${EASY_INT} Tagen`;
     } else {
       const ease = card.ease_factor ?? 2.5;
@@ -249,63 +173,8 @@ const StudySession = ({ onClose }: Props) => {
     return "";
   };
 
-  // ── Screens ───────────────────────────────────────────────────────────────
+  // ── Screens ───────────────────────────────────────────────────────────
 
-  // 1. Deck-Auswahl
-  if (status === "selecting") {
-    return (
-      <div className="study-wrapper">
-        <button className="study-back-btn" onClick={onClose}>
-          ← Zurück
-        </button>
-        <div className="deck-header">
-          <h1 className="deck-title">Lernset wählen</h1>
-          <p className="deck-subtitle">
-            Wähle ein Deck, das du heute lernen möchtest.
-          </p>
-        </div>
-
-        {decksLoading ? (
-          <div className="study-card">
-            <p className="study-loading">Laden…</p>
-          </div>
-        ) : decks.length === 0 ? (
-          <div className="study-card">
-            <p className="study-loading">Keine Decks gefunden.</p>
-          </div>
-        ) : (
-          <div className="deck-list">
-            {decks.map((deck) => (
-              <button
-                key={deck.id}
-                className="deck-item"
-                onClick={() => startDeck(deck)}
-                disabled={deck.due_count === 0}
-              >
-                <div className="deck-item-left">
-                  <span className="deck-item-name">{deck.name}</span>
-                  <span className="deck-item-total">
-                    {deck.total_count} Karten gesamt
-                  </span>
-                </div>
-                <div className="deck-item-right">
-                  {deck.due_count > 0 ? (
-                    <span className="deck-due-badge">
-                      {deck.due_count} fällig
-                    </span>
-                  ) : (
-                    <span className="deck-done-badge">erledigt ✓</span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // 2. Laden
   if (status === "loading") {
     return (
       <div className="study-wrapper">
@@ -316,7 +185,6 @@ const StudySession = ({ onClose }: Props) => {
     );
   }
 
-  // 3. Fertig
   if (status === "done") {
     return (
       <div className="study-wrapper">
@@ -324,19 +192,9 @@ const StudySession = ({ onClose }: Props) => {
           <div className="study-done-icon">✓</div>
           <h2 className="study-done-title">Fertig für heute</h2>
           <p className="study-done-subtitle">
-            Alle fälligen Karten in <em>{selectedDeck?.name}</em> erledigt.
+            Alle fälligen Karten in <em>{deck.name}</em> erledigt.
           </p>
-          <button
-            className="study-show-btn"
-            onClick={() => setStatus("selecting")}
-          >
-            Anderes Deck lernen
-          </button>
-          <button
-            className="study-back-btn"
-            style={{ marginTop: 8, alignSelf: "center" }}
-            onClick={onClose}
-          >
+          <button className="study-back-btn" style={{ marginTop: 8, alignSelf: "center" }} onClick={onClose}>
             Beenden
           </button>
         </div>
@@ -344,7 +202,6 @@ const StudySession = ({ onClose }: Props) => {
     );
   }
 
-  // 4. Lernen
   const card = queue[0];
   const progress = totalUnique > 0 ? (reviewed / totalUnique) * 100 : 0;
   const badge = getStateBadge(card._state);
@@ -352,15 +209,12 @@ const StudySession = ({ onClose }: Props) => {
   return (
     <div className="study-wrapper">
       <div className="study-session-topbar">
-        <button
-          className="study-back-btn"
-          onClick={handleBack}
-        >
-          ← {selectedDeck?.name}
+        <button className="study-back-btn" onClick={handleBack}>
+          ← {deck.name}
         </button>
       </div>
+
       <div className="study-progress-row">
-        <div className="study-progress-row">
         <div className="study-progress-bar">
           <div className="study-progress-fill" style={{ width: `${progress}%` }} />
         </div>
@@ -372,26 +226,17 @@ const StudySession = ({ onClose }: Props) => {
         <span className="study-stat state-learning">🟡 {learningCount} lernend</span>
         <span className="study-stat state-review">🟢 {reviewCount} wiederholen</span>
       </div>
-      </div>
-      {/* Card */}
+
       <div className="study-card">
         <div className="study-card-header">
           <span className={badge.className}>{badge.label}</span>
         </div>
 
         <div className="study-front">
-          {card.article && ( !card.reversed &&
-            (() => {
-              const article =
-                typeof card.article === "string"
-                  ? JSON.parse(card.article)
-                  : card.article;
-              return (
-                <span className="study-article">
-                  {article?.indefinite ?? ""}
-                </span>
-              );
-            })())}
+          {card.article && !card.reversed && (() => {
+            const article = typeof card.article === "string" ? JSON.parse(card.article) : card.article;
+            return <span className="study-article">{article?.indefinite ?? ""}</span>;
+          })()}
           <h2 className="study-phrase">{card.reversed ? card.translation : card.phrase}</h2>
           {card.example && (
             <div className="study-example-box">
@@ -405,18 +250,10 @@ const StudySession = ({ onClose }: Props) => {
           <>
             <hr className="study-divider" />
             <div className="study-back">
-              {card.article && ( card.reversed &&
-            (() => {
-              const article =
-                typeof card.article === "string"
-                  ? JSON.parse(card.article)
-                  : card.article;
-              return (
-                <span className="study-article">
-                  {article?.indefinite ?? ""}
-                </span>
-              );
-            })())}
+              {card.article && card.reversed && (() => {
+                const article = typeof card.article === "string" ? JSON.parse(card.article) : card.article;
+                return <span className="study-article">{article?.indefinite ?? ""}</span>;
+              })()}
               <p className="study-translation">{card.reversed ? card.phrase : card.translation}</p>
               {card.example_translation && (
                 <p className="study-example-translation">
@@ -424,30 +261,22 @@ const StudySession = ({ onClose }: Props) => {
                 </p>
               )}
               {card.grammar && <p className="study-grammar">{card.grammar}</p>}
-              {card.conjugation &&
-                (() => {
-                  const conj =
-                    typeof card.conjugation === "string"
-                      ? JSON.parse(card.conjugation)
-                      : card.conjugation;
-                  return (
-                    <details className="qc-details" style={{ marginTop: 16 }}>
-                      <summary className="qc-details-summary">
-                        Konjugation
-                      </summary>
-                      <div className="qc-details-grid">
-                        {Object.entries(conj).map(([pronoun, form]) => (
-                          <div key={pronoun} className="qc-details-row">
-                            <span className="qc-details-label">{pronoun}</span>
-                            <span className="qc-details-value">
-                              {form as string}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  );
-                })()}
+              {card.conjugation && (() => {
+                const conj = typeof card.conjugation === "string" ? JSON.parse(card.conjugation) : card.conjugation;
+                return (
+                  <details className="qc-details" style={{ marginTop: 16 }}>
+                    <summary className="qc-details-summary">Konjugation</summary>
+                    <div className="qc-details-grid">
+                      {Object.entries(conj).map(([pronoun, form]) => (
+                        <div key={pronoun} className="qc-details-row">
+                          <span className="qc-details-label">{pronoun}</span>
+                          <span className="qc-details-value">{form as string}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                );
+              })()}
             </div>
           </>
         )}
@@ -460,28 +289,28 @@ const StudySession = ({ onClose }: Props) => {
       ) : (
         <div className="study-rating-row">
           {([1, 2, 3, 4] as const).map((r) => {
-            const labels: Record<number, string> = {
-              1: "Vergessen",
-              2: "Schwer",
-              3: "Gut",
-              4: "Einfach",
-            };
+            const labels: Record<number, string> = { 1: "Vergessen", 2: "Schwer", 3: "Gut", 4: "Einfach" };
             return (
-              <button
-                key={r}
-                className={`study-rating-btn rating-${r}`}
-                onClick={() => handleRating(r)}
-              >
+              <button key={r} className={`study-rating-btn rating-${r}`} onClick={() => handleRating(r)}>
                 <span className="rating-number">{r}</span>
                 <span className="rating-label">{labels[r]}</span>
-                <span className="rating-sublabel">
-                  {getRatingSublabel(r, card)}
-                </span>
+                <span className="rating-sublabel">{getRatingSublabel(r, card)}</span>
               </button>
             );
           })}
         </div>
       )}
+
+      // CONFIRMATION modal
+      {confirmLeaveSession && (
+        <ConfirmModal
+          message="Der Fortschritt wird nicht gespeichert, wenn du die Session frühzeitig verlässt. Möchtest du wirklich die Session beenden?"
+          onConfirm={onClose}
+          onCancel={() => setConfirmLeaveSession(false)}
+          confirmBtnText="Verlassen"
+        />
+      )}
+
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { supabase } from "./adapters/supabase"
 import { Analytics } from "@vercel/analytics/react"
 import type { User } from "@supabase/supabase-js"
 import QuickCapture from "./mobile/QuickCapture"
-import StudySession from "./study-session/StudySession"
+import StudyContainer from "./study-session/StudyContainer"
 import Profile from "./profile/Profile"
 import Login from "./auth/Login"
 
@@ -32,7 +32,7 @@ function App() {
   return (
     <div className="app">
       {showStudy ? (
-        <StudySession onClose={() => setShowStudy(false)} />
+        <StudyContainer onClose={() => setShowStudy(false)} />
       ) : (
         <QuickCapture
           onStudyOpen={() => setShowStudy(true)}
