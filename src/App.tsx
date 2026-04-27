@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { supabase } from "./adapters/supabase"
+import { Analytics } from "@vercel/analytics/next"
 import type { User } from "@supabase/supabase-js"
 import QuickCapture from "./mobile/QuickCapture"
 import StudySession from "./study-session/StudySession"
@@ -42,6 +43,7 @@ function App() {
         open={showProfile}
         onClose={() => setShowProfile(false)}
       />
+    <Analytics/>
     </div>
   )
 }
