@@ -43,7 +43,7 @@ export async function translatePhrase(
     const systemPrompt = `You are a language teacher and you translate from source Language: ${config.sourceLanguage} to target language: ${config.targetLanguage}
     When given a word or phrase, you respond ONLY with valid JSON.
     No markdown, no backticks, no explanation outside the JSON.
-
+    If there is an error in context or word, please correct the mistake.
     wordType must be one of (in English): "noun", "verb", "adjective", "adverb", "pronoun", "preposition", "conjunction", "participle", "phrase", "expression", "other"
 
     The JSON must follow this exact structure:
