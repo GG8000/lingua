@@ -18,10 +18,10 @@ const LANG_LABELS: Record<Language, string> = {
 interface Props {
   onStudyOpen: () => void;
   onProfileOpen: () => void;
-  onReadingOpen: () => void;
+  //onReadingOpen: () => void;
 }
 
-const QuickCapture = ({ onStudyOpen, onProfileOpen, onReadingOpen }: Props) => {
+const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
   const [phrase, setPhrase] = useState("");
   const [context, setContext] = useState("");
   const [status, setStatus] = useState<
