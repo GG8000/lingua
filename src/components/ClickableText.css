@@ -1,0 +1,97 @@
+/* src/components/ClickableText.css */
+
+.clickable-text-wrapper {
+  position: relative;
+  line-height: 1.8;
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  color: #2C1810;
+}
+
+.clickable-word {
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.15s;
+  padding: 0 1px;
+}
+
+.clickable-word:hover {
+  background: #F5EDD8;
+  color: #8B5E3C;
+}
+
+.clickable-word--loading {
+  background: #F0E6D8;
+  color: #C4A882;
+}
+
+.clickable-word--saved {
+  color: #4A7E5C;
+  text-decoration: underline;
+  text-decoration-color: #4A7E5C;
+  text-underline-offset: 3px;
+}
+
+.word-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.word-popup {
+  position: absolute;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 14px 16px;
+  width: 200px;
+  z-index: 60;
+  box-shadow:
+    0 4px 16px rgba(44, 24, 16, 0.12),
+    0 1px 4px rgba(44, 24, 16, 0.08);
+}
+
+.word-popup-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: #2C1810;
+  margin: 0 0 4px;
+}
+
+.word-popup-translation {
+  font-size: 15px;
+  color: #8B5E3C;
+  font-style: italic;
+  margin: 0 0 4px;
+}
+
+.word-popup-type {
+  font-size: 11px;
+  color: #C4A882;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.word-popup-add {
+  width: 100%;
+  padding: 8px;
+  background: #8B5E3C;
+  color: #FBF7F0;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.word-popup-add:hover {
+  background: #7A5234;
+}
+
+.word-popup-saved {
+  font-size: 13px;
+  color: #4A7E5C;
+  margin: 0;
+  text-align: center;
+}

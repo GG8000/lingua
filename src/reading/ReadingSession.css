@@ -1,0 +1,270 @@
+/* src/reading/ReadingSession.css */
+
+.reading-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  background: #FBF7F0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 20px 100px;
+  font-family: 'Lora', serif;
+  gap: 16px;
+}
+
+.reading-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+}
+
+.reading-level-badge {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  background: #F5EDD8;
+  color: #9A7030;
+  border-radius: 999px;
+}
+
+.reading-mode-toggle {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.reading-mode-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid #E8D5C0;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  color: #A08060;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reading-mode-btn.active {
+  background: #8B5E3C;
+  color: #FBF7F0;
+  border-color: #8B5E3C;
+}
+
+.reading-section {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reading-level-row {
+  display: flex;
+  gap: 8px;
+}
+
+.reading-level-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid #E8D5C0;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  color: #A08060;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reading-level-btn.active {
+  background: #8B5E3C;
+  color: #FBF7F0;
+  border-color: #8B5E3C;
+}
+
+.reading-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #E8D5C0;
+  border-radius: 10px;
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  color: #2C1810;
+  background: #FBF7F0;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  line-height: 1.6;
+}
+
+.reading-textarea:focus {
+  border-color: #8B5E3C;
+  box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.10);
+  background: #FFFFFF;
+}
+
+.reading-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 24px 28px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow:
+    0 2px 8px rgba(139, 94, 60, 0.08),
+    0 8px 32px rgba(139, 94, 60, 0.08);
+}
+
+.reading-hint {
+  font-size: 12px;
+  color: #C4A882;
+  margin: 0 0 16px;
+  font-style: italic;
+}
+
+.reading-saved-words {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reading-saved-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reading-saved-chip {
+  background: #F5EDD8;
+  color: #9A7030;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: 'Lora', serif;
+}
+
+.reading-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.reading-question-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow:
+    0 2px 8px rgba(139, 94, 60, 0.06),
+    0 4px 16px rgba(139, 94, 60, 0.06);
+}
+
+.reading-question-text {
+  font-size: 15px;
+  color: #2C1810;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+}
+
+.reading-result-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow:
+    0 2px 8px rgba(139, 94, 60, 0.06),
+    0 4px 16px rgba(139, 94, 60, 0.06);
+}
+
+.reading-result-grade {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.grade-correct  { background: #DFF0E4; color: #3A6E4C; }
+.grade-partial  { background: #F5EDD8; color: #9A7030; }
+.grade-wrong    { background: #F2E0DC; color: #B05C4A; }
+
+.reading-result-correction {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reading-corrected {
+  font-size: 15px;
+  color: #2C1810;
+  font-style: italic;
+  padding: 10px 14px;
+  background: #FBF7F0;
+  border-left: 3px solid #C4956A;
+  border-radius: 0 8px 8px 0;
+  margin: 0;
+}
+
+.reading-explanation {
+  font-size: 14px;
+  color: #6B4A2A;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.reading-vocab-section {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reading-vocab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(139, 94, 60, 0.06);
+}
+
+.reading-vocab-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #F0E6D8;
+}
+
+.reading-vocab-item:last-child {
+  border-bottom: none;
+}
+
+.reading-vocab-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  color: #2C1810;
+}
+
+.reading-vocab-translation {
+  font-size: 14px;
+  color: #8B5E3C;
+  font-style: italic;
+}
