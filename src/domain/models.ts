@@ -47,3 +47,25 @@ export interface Article {
   definite: string;
   plural: string;
 }
+
+export type CEFRLevel = "A1" | "A2" | "B1" | "B2"
+
+export interface ReadingText {
+  content: string
+  level: CEFRLevel
+  topic?: string
+  source: "generated" | "uploaded" | "pdf"
+}
+
+export interface ReadingQuestion {
+  question: string
+  type: "comprehension" | "vocabulary" | "opinion"
+  expectedAnswer?: string
+}
+
+export interface ReadingCorrection {
+  original: string
+  corrected: string
+  explanation: string
+  grade: "correct" | "partial" | "wrong"
+}

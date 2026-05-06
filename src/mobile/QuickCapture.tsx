@@ -18,9 +18,10 @@ const LANG_LABELS: Record<Language, string> = {
 interface Props {
   onStudyOpen: () => void;
   onProfileOpen: () => void;
+  onReadingOpen: () => void;
 }
 
-const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
+const QuickCapture = ({ onStudyOpen, onProfileOpen, onReadingOpen }: Props) => {
   const [phrase, setPhrase] = useState("");
   const [context, setContext] = useState("");
   const [status, setStatus] = useState<
@@ -35,7 +36,6 @@ const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
   const [showNewDeck, setShowNewDeck] = useState(false);
   const [newDeckName, setNewDeckName] = useState("");
 
-  
   useEffect(() => {
     getDecks().then((data) => setDecks(data ?? []));
   }, []);
@@ -49,21 +49,21 @@ const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
     german: ["french", "italian", "english"],
     french: ["german"],
     italian: ["german"],
-    english: ["german"]
+    english: ["german"],
   };
 
   const phrasePlaceholders: Record<Language, string> = {
     french: "par example: vélo",
     italian: "per esempio: sprezzatura",
     german: "zum Beispiel: Fahrrad",
-    english: "for example: bicycle"
+    english: "for example: bicycle",
   };
 
   const contextPlaceholders: Record<Language, string> = {
     french: "par example: Je vais au travail à vélo.",
     italian: "per esempio: Vado al lavoro in bicicletta.",
     german: "zum Beispiel: Ich fahre mit dem Fahrrad zur Arbeit.",
-    english: "for example: I love to ride my bicycle."
+    english: "for example: I love to ride my bicycle.",
   };
 
   const handleCapture = async () => {
@@ -147,6 +147,9 @@ const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
         >
           <h1 className="qc-title">Lingua</h1>
           <div style={{ display: "flex", gap: 12 }}>
+            {/* <button className="qc-icon-btn" onClick={onReadingOpen}>
+              📖
+            </button> */}
             <button className="qc-icon-btn" onClick={onStudyOpen}>
               📚
             </button>
@@ -172,7 +175,17 @@ const QuickCapture = ({ onStudyOpen, onProfileOpen }: Props) => {
               </option>
             ))}
           </select>
-          <span className="qc-arrow">→</span>
+          <span 
+            className="qc-arrow" 
+            onClick={
+              () => {
+                let tempTargetLang = targetLanguage;
+                setTargetLanguage(sourceLanguage);
+                setSourceLanguage(tempTargetLang);
+              }
+            }> 
+            ⇄ 
+          </span>
           <select
             className="qc-select"
             value={targetLanguage}

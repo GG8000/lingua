@@ -6,12 +6,14 @@ import QuickCapture from "./mobile/QuickCapture"
 import StudyContainer from "./study-session/StudyContainer"
 import Profile from "./profile/Profile"
 import Login from "./auth/Login"
+import ReadingSession from "./reading/ReadingSession"
 
 function App() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [showStudy, setShowStudy] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showReading, setShowReading] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -31,12 +33,15 @@ function App() {
 
   return (
     <div className="app">
-      {showStudy ? (
+      {showReading ? (
+        <ReadingSession onClose={() => setShowReading(false)} />
+      ) : showStudy ? (
         <StudyContainer onClose={() => setShowStudy(false)} />
       ) : (
         <QuickCapture
           onStudyOpen={() => setShowStudy(true)}
           onProfileOpen={() => setShowProfile(true)}
+          onReadingOpen={() => setShowReading(true)}
         />
       )}
       <Profile

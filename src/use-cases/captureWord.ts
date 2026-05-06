@@ -22,5 +22,7 @@ export async function captureWord(
   await saveCard(translation, deckId, false);
   await saveCard(translation, deckId, true);
 
+  console.log("SAVED CARD")
+
   return translation as Translation;
 }
