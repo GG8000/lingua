@@ -35,7 +35,7 @@ function App() {
     <div className="app">
       {showReading ? (
         //<ReadingSession onClose={() => setShowReading(false)} />
-        <h1>Hello</h1>
+        <h1 onClick={() => {setShowReading(false)}}>Hello</h1>
       ) : showStudy ? (
         <StudyContainer onClose={() => setShowStudy(false)} />
       ) : (
